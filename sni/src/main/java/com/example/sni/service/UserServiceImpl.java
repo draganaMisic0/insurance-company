@@ -9,6 +9,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -35,7 +38,12 @@ public class UserServiceImpl implements UserService {
         Authentication auth=authenticationManager.
                 authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 
-        return jwtService.generateToken(user.getUsername());
+        if (auth.isAuthenticated()) {
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("role", auth.getAuthorities());  // Dodajemo uloge
+            return jwtService.generateToken(claims, user.getUsername());
+        }
+        return "Failed";
 
 
     }
