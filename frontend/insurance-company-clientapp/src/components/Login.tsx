@@ -1,11 +1,15 @@
-// Login.tsx
 import React, { useState } from "react";
-import "./Login.css"; // Import the CSS file
+import "./Login.css";
+import { useNavigate } from "react-router-dom";
+import api from "../axios";
+import { AxiosError } from "axios";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const navigate = useNavigate();
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -13,25 +17,16 @@ const Login: React.FC = () => {
     const payload = { username, password };
 
     try {
-      const response = await fetch("https://your-backend-api.com/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      await api.post("/client/auth/login", payload);
+      navigate("/client/auth/verify-code", { state: { username } });
+    } catch (error: unknown) {
+      console.error("Login error:", error);
 
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("token", data.token);
-        window.location.href = "/dashboard";
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        setErrorMessage(error.response.data.message);
       } else {
-        const errorData = await response.json();
-        setErrorMessage(errorData.message);
+        setErrorMessage("Login failed. Please try again.");
       }
-    } catch (error) {
-      console.error("Error logging in:", error);
-      setErrorMessage("An error occurred. Please try again later.");
     }
   };
 
@@ -44,9 +39,9 @@ const Login: React.FC = () => {
           {errorMessage && <div className="error-message">{errorMessage}</div>}
           <form onSubmit={handleLogin}>
             <div>
-              <label htmlFor="email">Username</label>
+              <label htmlFor="username">Username</label>
               <input
-                type="username"
+                type="text"
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -66,7 +61,8 @@ const Login: React.FC = () => {
             <button type="submit">Login</button>
           </form>
           <p style={{ marginTop: 30 }}>
-            Don't have an account? <a href="/register">Register here</a>
+            Don't have an account?{" "}
+            <a href="/client/auth/register">Register here</a>
           </p>
         </div>
       </div>

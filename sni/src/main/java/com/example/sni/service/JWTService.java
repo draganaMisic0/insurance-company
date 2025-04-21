@@ -10,4 +10,6 @@ public interface JWTService {
     String extractUserName(String token);
 
     boolean validateToken(String token, UserDetails userDetails);
+
+    String extractRole(String token);
 }

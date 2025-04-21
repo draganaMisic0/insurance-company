@@ -12,13 +12,12 @@ public class PolicyEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+
 
     @Column(name = "pdf_url", nullable = false, length = 200)
     private String pdfUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "insurance_type_id", nullable = false)
     private InsuranceTypeEntity insuranceType;
 
@@ -30,13 +29,7 @@ public class PolicyEntity {
         this.id = id;
     }
 
-    public BigDecimal getPrice() {
-        return price;
-    }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
 
     public String getPdfUrl() {
         return pdfUrl;

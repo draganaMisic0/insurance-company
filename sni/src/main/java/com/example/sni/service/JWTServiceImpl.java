@@ -82,6 +82,11 @@ public class JWTServiceImpl implements JWTService {
         return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    @Override
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }

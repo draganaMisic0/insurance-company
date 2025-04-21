@@ -1,23 +1,34 @@
+import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode";
-
-function isTokenValid(token: string | undefined): boolean {
-  if (!token) return false;
-
-  try {
-    const decoded: any = jwtDecode(token);
-    const currentTime = Date.now() / 1000;
-    return decoded.exp > currentTime;
-  } catch (e) {
-    return false;
-  }
-}
+import axios from "./../axios";
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  const token = Cookies.get("token");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  return isTokenValid(token) ? children : <Navigate to="/auth/login" replace />;
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await axios.get("https://localhost:8443/auth/check", {
+          withCredentials: true,
+        });
+        setIsAuthenticated(true);
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
+
+  return isAuthenticated ? (
+    children
+  ) : (
+    <Navigate to="/client/auth/login" replace />
+  );
 };
 
 export default PrivateRoute;

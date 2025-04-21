@@ -11,6 +11,13 @@ public class Users {
     private String role;
     private Instant createdAt;
 
+    public Users(Integer id, String username, String email, String role) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.role = role;
+
+    }
     public Integer getId() {
         return id;
     }

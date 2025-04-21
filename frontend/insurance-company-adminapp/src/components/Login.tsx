@@ -1,12 +1,13 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
-import Cookies from "js-cookie";
 import "./Login.css";
 
-const Login: React.FC = () => {
+function Login() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<React.ReactNode>("");
+  const navigate = useNavigate();
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -14,21 +15,25 @@ const Login: React.FC = () => {
     const payload = { username, password };
 
     try {
-      const response = await api.post("/auth/login", payload);
-
-      const token = response.data;
-
-      Cookies.set("token", token, {
-        expires: 1 / 24,
-        path: "/",
-        secure: true,
-        sameSite: "Strict",
-      });
-
-      window.location.href = "/main";
+      await api.post("/admin/auth/login", payload);
+      navigate("/admin/auth/verify-code", { state: { username } });
     } catch (error: any) {
       console.error("Login error:", error);
-      if (error.response?.data?.message) {
+
+      if (error.response?.status === 403) {
+        console.log("enters status 403");
+        setErrorMessage(
+          <>
+            You do not have permission to access the admin app. <br />
+            <a
+              href="https://localhost:5174/client/auth/login"
+              style={{ color: "blue", textDecoration: "underline" }}
+            >
+              Go to client app
+            </a>
+          </>
+        );
+      } else if (error.response?.data?.message) {
         setErrorMessage(error.response.data.message);
       } else {
         setErrorMessage("Login failed. Please try again.");
@@ -70,6 +75,6 @@ const Login: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Login;

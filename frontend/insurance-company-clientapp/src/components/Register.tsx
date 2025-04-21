@@ -16,19 +16,22 @@ const Register: React.FC = () => {
       return;
     }
 
-    const payload = { email, password };
+    const payload = { username, email, password };
 
     try {
-      const response = await fetch("https://your-backend-api.com/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        "https://localhost:8443/client/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (response.ok) {
-        window.location.href = "/login";
+        window.location.href = "/client/auth/login";
       } else {
         const errorData = await response.json();
         setErrorMessage(errorData.message);
@@ -89,7 +92,7 @@ const Register: React.FC = () => {
           </form>
 
           <p style={{ marginTop: 30 }}>
-            Already have an account? <a href="/login">Login here</a>
+            Already have an account? <a href="/client/auth/login">Login here</a>
           </p>
         </div>
       </div>
